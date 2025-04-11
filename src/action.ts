@@ -4,6 +4,32 @@ import { auth } from "@clerk/nextjs/server"
 import { prisma } from "./prisma";
 import { z } from "zod"
 import { revalidatePath } from "next/cache";
+import { imagekit } from "./utils";
+import { UploadResponse } from "imagekit/dist/libs/interfaces";
+
+export const followUser = async (targetUserId: string) => {
+  const { userId } = await auth();
+
+  if (!userId) return;
+
+  const existingFollow = await prisma.follow.findFirst({
+    where: {
+      followerId: userId,
+      followingId: targetUserId,
+
+    },
+  });
+
+  if (existingFollow) {
+    await prisma.follow.delete({
+      where: { id: existingFollow.id },
+    });
+  } else {
+    await prisma.follow.create({
+      data: {followerId: userId, followingId: targetUserId,},
+    });
+  }
+};
 
 export const likePost = async (postId: number) => {
   const { userId } = await auth();
@@ -76,7 +102,7 @@ export const savePost = async (postId: number) => {
 };
 
 export const addComment = async (
-  prevState: { success: boolean; error: boolean } = { success: false, error: false }, 
+  prevState: { success: boolean; error: boolean } = { success: false, error: false },
   formData: FormData
 ) => {
   const { userId } = await auth();
@@ -115,11 +141,8 @@ export const addComment = async (
   }
 };
 
-//STOPED HERE
-
-
 export const addPost = async (
-  prevState: { success: boolean; error: boolean } = { success: false, error: false }, 
+  prevState: { success: boolean; error: boolean } = { success: false, error: false },
   formData: FormData
 ) => {
   const { userId } = await auth();
@@ -135,9 +158,9 @@ export const addPost = async (
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const transformation = `w-600,${
-      imgType === "square" ? "ar-1-1" : imgType === "wide" ? "ar-16-9" : ""
-    }`;
+    const transformation = `w-600,${imgType === "square" ? "ar-1-1" :
+        imgType === "wide" ? "ar-16-9" : ""
+      }`;
 
     return new Promise((resolve, reject) => {
       imagekit.upload(
@@ -158,4 +181,50 @@ export const addPost = async (
       );
     });
   };
+
+  const Post = z.object({
+    description: z.string().max(140),
+    isSensitive: z.boolean().optional()
+  });
+
+  const validatedFields = Post.safeParse({
+    description,
+    isSensitive: JSON.parse(isSensitive)
+  });
+
+  if (!validatedFields.success) {
+    return { success: false, error: true };
+  }
+
+  let img = "";
+  let imgHeight = 0;
+  let video = "";
+
+  if (file.size) {
+    const result: UploadResponse = await uploadFile(file);
+
+    if (result.fileType === "image") {
+      img = result.filePath
+      imgHeight = result.height
+    } else {
+      video = result.filePath
+    }
+  }
+
+  try {
+    await prisma.post.create({
+      data: {
+        ...validatedFields.data,
+        userId,
+        img,
+        imgHeight,
+        video,
+      },
+    });
+    revalidatePath(`/`);
+  } catch (err) {
+    console.log(err);
+    return { success: false, error: true };
+  }
+
 }

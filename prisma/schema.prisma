@@ -39,6 +39,7 @@ model Post {
   updatedAt DateTime @updatedAt
   description     String   @db.VarChar(255)
   img String?
+  imgHeight Int?
   video String?
   isSensitive Boolean @default(false)
 

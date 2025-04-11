@@ -107,6 +107,7 @@ const Post = ({
                     </span>}
 
                     <PostInteractions
+                        username= {originalPost.user.username}
                         postId = {originalPost.id}
                         count={originalPost._count}
                         isLiked={!!originalPost.likes.length}

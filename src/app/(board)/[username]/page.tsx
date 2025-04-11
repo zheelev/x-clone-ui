@@ -12,8 +12,10 @@ const UserPage = async ({ params }: { params: Promise<{ username: string }> }) =
 
     const { userId } = await auth();
 
+    const username = (await params).username
+
     const user = await prisma.user.findUnique({
-        where: { username: (await params).username },
+        where: { username: username },
         include: {
             _count: { select: { followers: true, following: true } },
             following: userId ? { where: { followerId: userId } } : undefined,

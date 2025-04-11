@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from './Image';
+import Socket from './Socket';
 
 const menuList = [
     {
@@ -15,12 +16,12 @@ const menuList = [
         link: "/",
         icon: "explore.svg",
     },
-    {
+  /*   {
         id: 3,
         name: "Notification",
         link: "/",
         icon: "notification.svg",
-    },
+    }, */
     {
         id: 4,
         name: "Messages",
@@ -108,6 +109,7 @@ const LeftBar = () => {
                 </div>
                 <div className="hidden 2xl:block cursor-pointer font-bold">...</div>
             </div>
+            <Socket/>
         </div>
     );
 }
