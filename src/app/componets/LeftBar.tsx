@@ -2,6 +2,7 @@ import React from 'react';
 import Link from 'next/link';
 import Image from './Image';
 import Socket from './Socket';
+import Notification from './Notification';
 
 const menuList = [
     {
@@ -16,12 +17,12 @@ const menuList = [
         link: "/",
         icon: "explore.svg",
     },
-  /*   {
-        id: 3,
-        name: "Notification",
-        link: "/",
-        icon: "notification.svg",
-    }, */
+    /*   {
+          id: 3,
+          name: "Notification",
+          link: "/",
+          icon: "notification.svg",
+      }, */
     {
         id: 4,
         name: "Messages",
@@ -77,25 +78,33 @@ const LeftBar = () => {
                 </Link>
                 {/*MENU LIST*/}
                 <div className="flex flex-col gap-4">
-                    {menuList.map(item => (
-                        <Link href={item.link} className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4" key={item.id}>
-                            <Image
-                                path={`icons/${item.icon}`}
-                                alt={item.name}
-                                w={24}
-                                h={24} />
-                            <span className="hidden 2xl:inline">{item.name}</span>
-                        </Link>
+                    {menuList.map((item, i) => (
+                         <div key={item.id || i}>
+                            {i === 2 && (
+                                <div>
+                                    <Notification/>
+                                </div>
+                            )}
+                            <Link href={item.link} className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4" key={item.id}>
+                                <Image
+                                    path={`icons/${item.icon}`}
+                                    alt={item.name}
+                                    w={24}
+                                    h={24} />
+                                <span className="hidden 2xl:inline">{item.name}</span>
+                            </Link>
+                        </div>
                     ))}
                 </div>
-                {/*BUTTONM*/}
+                {/*BUTTOM*/}
                 <Link href="/compose/post" className="bg-white text-black rounded-full w-12 h-12 flex items-center justify-center 2xl:hidden">
                     <Image path="icons/post.svg" alt="new post" w={24} h={24} />
                 </Link>
-                <Link href="/compose/post" className="hidden 2xl:block bg-white text-black rounded-full font-bold py-2 px-20">
+                <Link href="/compose/post" className="hidden 2xl:block bg-white text-black rounded-full font-bold py-2 px-20 -z-20">
                     Post
                 </Link>
             </div>
+            <Socket />
             {/*USER*/}
             <div className="flex items-center justify-between pb-3">
                 <div className="flex items-center gap-2">
@@ -109,7 +118,6 @@ const LeftBar = () => {
                 </div>
                 <div className="hidden 2xl:block cursor-pointer font-bold">...</div>
             </div>
-            <Socket/>
         </div>
     );
 }

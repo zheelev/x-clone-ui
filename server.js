@@ -27,7 +27,7 @@ const removeUser = (socketId)=>{
 };
 
 const getUser = (username) =>{
-    return onlineUsers.find((user) => user.socketId === socketId)
+    return onlineUsers.find((user) => user.username === username)
 }
 
 app.prepare().then(() => {
